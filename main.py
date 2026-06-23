@@ -1,67 +1,61 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional
+from fastapi import FastAPI, HTTPException, Depends
+from sqlalchemy.orm import Session
+from typing import List
 
-# 1. FastAPI Uygulamasını Başlatıyoruz
-app = FastAPI(title="Yebsoft Müşteri Otomasyonu API")
+# Diğer dosyalardan ihtiyaç duyduğumuz yapıları çağırıyoruz
+import models
+import schemas
+from database import engine, get_db
 
-# 2. JSON Veri Modelimizi Tanımlıyoruz
-class Musteri(BaseModel):
-    id: int
-    isim: str
-    sirket_adi: str
-    email: str
-    aktif_mi: Optional[bool] = True
+# Uygulama ayağa kalkarken MySQL tablolarını otomatik oluşturur
+models.Base.metadata.create_all(bind=engine)
 
-# 3. Geçici Veri Tabanımız (RAM üzerinde)
-db: List[Musteri] = [
-    Musteri(id=1, isim="Ahmet Yılmaz", sirket_adi="Yebsoft", email="ahmet@yebsoft.net", aktif_mi=True),
-    Musteri(id=2, isim="bedi", sirket_adi="Yebsoft", email="bedi@yebsoft.net", aktif_mi=True)
-]
-
-@app.get("/")
-def ana_sayfa():
-    return {"mesaj": "Yebsoft Müşteri Otomasyonu API'sine Hoş Geldiniz!"}
-
+app = FastAPI(title="Yebsoft Katmanlı Mimari API")
 
 # --- CRUD İŞLEMLERİ ---
 
-# READ (Listeleme)
-@app.get("/musteriler", response_model=List[Musteri])
-def tum_musterileri_getir():
-    return db
+@app.get("/musteriler", response_model=List[schemas.MusteriResponse])
+def tum_musterileri_getir(db: Session = Depends(get_db)):
+    return db.query(models.MusteriModel).all()
 
-# READ (Detay)
-@app.get("/musteriler/{musteri_id}", response_model=Musteri)
-def musteri_getir(musteri_id: int):
-    for m in db:
-        if m.id == musteri_id:
-            return m
-    raise HTTPException(status_code=404, detail="Müşteri bulunamadı!")
+@app.get("/musteriler/{musteri_id}", response_model=schemas.MusteriResponse)
+def musteri_getir(musteri_id: int, db: Session = Depends(get_db)):
+    musteri = db.query(models.MusteriModel).filter(models.MusteriModel.id == musteri_id).first()
+    if not musteri:
+        raise HTTPException(status_code=404, detail="Müşteri bulunamadı!")
+    return musteri
 
-# CREATE (Ekleme)
-@app.post("/musteriler", response_model=Musteri)
-def yeni_musteri_ekle(yeni_musteri: Musteri):
-    for m in db:
-        if m.id == yeni_musteri.id:
-            raise HTTPException(status_code=400, detail="Bu ID zaten kullanımda.")
-    db.append(yeni_musteri)
+@app.post("/musteriler", response_model=schemas.MusteriResponse)
+def yeni_musteri_ekle(musteri_bilgisi: schemas.MusteriOlustur, db: Session = Depends(get_db)):
+    email_kontrol = db.query(models.MusteriModel).filter(models.MusteriModel.email == musteri_bilgisi.email).first()
+    if email_kontrol:
+        raise HTTPException(status_code=400, detail="Bu email adresi zaten kayıtlı!")
+        
+    yeni_musteri = models.MusteriModel(**musteri_bilgisi.model_dump())
+    db.add(yeni_musteri)
+    db.commit()
+    db.refresh(yeni_musteri)
     return yeni_musteri
 
-# UPDATE (Güncelleme)
-@app.put("/musteriler/{musteri_id}", response_model=Musteri)
-def musteri_guncelle(musteri_id: int, guncel_bilgiler: Musteri):
-    for index, m in enumerate(db):
-        if m.id == musteri_id:
-            db[index] = guncel_bilgiler
-            return guncel_bilgiler
-    raise HTTPException(status_code=404, detail="Güncellenecek müşteri bulunamadı!")
+@app.put("/musteriler/{musteri_id}", response_model=schemas.MusteriResponse)
+def musteri_guncelle(musteri_id: int, guncel_bilgiler: schemas.MusteriOlustur, db: Session = Depends(get_db)):
+    musteri = db.query(models.MusteriModel).filter(models.MusteriModel.id == musteri_id).first()
+    if not musteri:
+        raise HTTPException(status_code=404, detail="Güncellenecek müşteri bulunamadı!")
+        
+    for key, value in guncel_bilgiler.model_dump().items():
+        setattr(musteri, key, value)
+        
+    db.commit()
+    db.refresh(musteri)
+    return musteri
 
-# DELETE (Silme)
 @app.delete("/musteriler/{musteri_id}")
-def musteri_sil(musteri_id: int):
-    for index, m in enumerate(db):
-        if m.id == musteri_id:
-            db.pop(index)
-            return {"mesaj": f"ID'si {musteri_id} olan müşteri başarıyla silindi."}
-    raise HTTPException(status_code=404, detail="Silinecek müşteri bulunamadı!")
+def musteri_sil(musteri_id: int, db: Session = Depends(get_db)):
+    musteri = db.query(models.MusteriModel).filter(models.MusteriModel.id == musteri_id).first()
+    if not musteri:
+        raise HTTPException(status_code=404, detail="Silinecek müşteri bulunamadı!")
+        
+    db.delete(musteri)
+    db.commit()
+    return {"mesaj": f"ID'si {musteri_id} olan müşteri başarıyla silindi."}
