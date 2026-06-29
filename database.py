@@ -9,7 +9,7 @@ load_dotenv()
 
 # CasaOS/Docker ortam değişkenlerinden parçalı olarak verileri çekiyoruz
 # Eğer bu değişkenler sistemde yoksa, sağ taraftaki varsayılan değerleri kullanır
-DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
+DB_HOST = os.getenv("DB_HOST", "172.17.0.1")
 DB_PORT = os.getenv("DB_PORT", "3306")
 DB_USER = os.getenv("DB_USER", "root")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "database_sifresi")  # Kendi yerel şifreni yazabilirsin
