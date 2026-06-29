@@ -12,8 +12,8 @@ load_dotenv()
 DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
 DB_PORT = os.getenv("DB_PORT", "3306")
 DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "Sifreniz123*")  # Kendi yerel şifreni yazabilirsin
-DB_NAME = os.getenv("DB_NAME", "workspace_db")          # Kendi local db adını yazabilirsin
+DB_PASSWORD = os.getenv("DB_PASSWORD", "database_sifresi")  # Kendi yerel şifreni yazabilirsin
+DB_NAME = os.getenv("DB_NAME", "database_adi")          # Kendi local db adını yazabilirsin
 
 # SQLALCHMEY DATABASE URL'ini dinamik ve güvenli bir şekilde inşa ediyoruz
 SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
