@@ -19,6 +19,7 @@ services:
 
   web:
     build: .
+    image: fasapi:latest
     container_name: fastapi_app
     restart: always
     ports:
