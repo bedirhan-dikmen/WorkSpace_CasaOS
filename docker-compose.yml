@@ -19,7 +19,7 @@ services:
 
   web:
     build: .
-    image: fasapi:latest
+    image: fastapi:latest
     container_name: fastapi_app
     restart: always
     ports:
@@ -39,9 +39,6 @@ services:
       icon: "https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png" # Güzel bir FastAPI Logosu
       title: "FastAPI Canlı App" # CasaOS panelinde görünecek isim
       index: "/docs" # 🚀 İkona tıklandığında doğrudan /docs sayfasına yönlendir!
-
-volumes:
-  mysql_data:
 
 networks:
   api_network:
