@@ -11,7 +11,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     ports:
-      - "3306:3306" # Kendi bilgisayarından Navicat/Workbench ile bağlanabilmen için
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -22,7 +22,7 @@ services:
     container_name: fastapi_app
     restart: always
     ports:
-      - "8010:8000" # Dış portu senin belirlediğin gibi 8010 yaptık
+      - "8010:8000"
     environment:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
@@ -33,6 +33,11 @@ services:
       - db
     networks:
       - api_network
+    #  CASAOS ARAYÜZÜNÜ OTOMATİK DÜZELTEN SİHİRLİ SATIRLAR:
+    labels:
+      icon: "https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png" # Güzel bir FastAPI Logosu
+      title: "FastAPI Canlı App" # CasaOS panelinde görünecek isim
+      index: "/docs" # 🚀 İkona tıklandığında doğrudan /docs sayfasına yönlendir!
 
 volumes:
   mysql_data:
