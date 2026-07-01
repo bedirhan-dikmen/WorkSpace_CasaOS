@@ -35,10 +35,9 @@ services:
     networks:
       - api_network
     #  CASAOS ARAYÜZÜNÜ OTOMATİK DÜZELTEN SİHİRLİ SATIRLAR:
-    labels:
-      icon: "https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png" # Güzel bir FastAPI Logosu
-      title: "FastAPI Canlı App" # CasaOS panelinde görünecek isim
-      index: "/docs" # 🚀 İkona tıklandığında doğrudan /docs sayfasına yönlendir!
+
+volumes:
+  mysql_data:
 
 networks:
   api_network:
