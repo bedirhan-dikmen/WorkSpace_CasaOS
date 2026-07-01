@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 from typing import List
 
 # Diğer dosyalardan ihtiyaç duyduğumuz yapıları çağırıyoruz
-import models
-import schemas
-from database import engine, get_db
+from app import models, schemas
+from app.database import engine, get_db
+
 
 # Uygulama ayağa kalkarken MySQL tablolarını otomatik oluşturur
 models.Base.metadata.create_all(bind=engine)
