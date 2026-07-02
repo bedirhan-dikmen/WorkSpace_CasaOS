@@ -34,10 +34,6 @@ services:
       - db
     networks:
       - workspace_net
-
-volumes:
-  mysql_data:
-
 networks:
   api_network:
     driver: bridge
