@@ -11,11 +11,11 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     ports:
-      - "3306:3306"
+      - "3316:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-      - api_network
+      - workspace_net
 
   web:
     build: .
@@ -33,8 +33,7 @@ services:
     depends_on:
       - db
     networks:
-      - api_network
-    #  CASAOS ARAYÜZÜNÜ OTOMATİK DÜZELTEN SİHİRLİ SATIRLAR:
+      - workspace_net
 
 volumes:
   mysql_data:
